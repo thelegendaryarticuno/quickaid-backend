@@ -27,7 +27,7 @@ router.post('/raisesos', async (req, res) => {
     let userAddress = ''
     try {
       const userRes = await axios.get(
-        `${process.env.BACKEND_BASE_URL || 'http://localhost:5000'}/user/${sosData.UserId}`
+        `${process.env.BACKEND_BASE_URL || 'https://quickaid-backend-7mpc.onrender.com'}/user/${sosData.UserId}`
       )
       if (userRes.data && userRes.data.success && userRes.data.data) {
         userName = userRes.data.data.name || ''
