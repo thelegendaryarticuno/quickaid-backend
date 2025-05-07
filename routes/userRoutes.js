@@ -106,7 +106,6 @@ router.post('/:userId/name=:name', async (req, res) => {
     res.status(500).json({ success: false, error: error.message })
   }
 })
-
 // Route to get user details by userId
 router.get('/:userId', async (req, res) => {
   try {
@@ -168,5 +167,30 @@ router.post('/authorize', async (req, res) => {
   }
 })
 
+router.post('/profile', async (req, res) => {
+  try {
+    const { userId, ...updateFields } = req.body
+    if (!userId) {
+      return res.status(400).json({ success: false, message: 'userId is required' })
+    }
+
+    // Remove userId from updateFields if present
+    delete updateFields.userId
+
+    const user = await User.findOneAndUpdate(
+      { userId },
+      { $set: updateFields },
+      { new: true }
+    )
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' })
+    }
+
+    res.status(200).json({ success: true, message: 'Profile updated', data: user })
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
 
 module.exports = router
