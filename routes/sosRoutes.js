@@ -57,7 +57,6 @@ router.post('/raisesos', async (req, res) => {
     res.status(400).json({ success: false, error: error.message })
   }
 })
-
 router.get('/getsos/:userId', async (req, res) => {
   try {
     const sosData = await Sos.find({ UserId: req.params.userId })
@@ -127,6 +126,35 @@ router.post('/:sosId/completed', async (req, res) => {
       return res.status(404).json({ success: false, message: 'SOS not found' })
     }
     res.status(200).json({ success: true, message: 'SOS marked as completed', data: sos })
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message })
+  }
+})
+
+router.post('/sos/recent', async (req, res) => {
+  try {
+    const { userId } = req.body
+    if (!userId) {
+      return res.status(400).json({ success: false, message: 'userId is required' })
+    }
+    const sosList = await Sos.find({ UserId: userId }).sort({ createdAt: -1 })
+    if (!sosList || sosList.length === 0) {
+      return res.status(200).json({ success: true, data: [] })
+    }
+    const recentSos = sosList[0]
+    const now = new Date()
+    const sosTime = new Date(recentSos.createdAt)
+    const diffMs = now - sosTime
+    const diffMins = Math.floor(diffMs / 60000)
+
+    res.status(200).json({
+      success: true,
+      data: [{
+        type: recentSos.emergencyType,
+        sosStatus: recentSos.sosStatus,
+        timeGapMinutes: diffMins
+      }]
+    })
   } catch (error) {
     res.status(500).json({ success: false, error: error.message })
   }
