@@ -7,24 +7,28 @@ const cors = require('cors')
 const http = require('http')
 const { Server } = require('socket.io')
 
-const PORT = 5000  // Move PORT declaration to the top
+const PORT = 5000
 
 const app = express()
 const server = http.createServer(app)
+
+// Proper CORS setup
+app.use(cors({
+  origin: '*', // For development; replace with your frontend URL in production
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}))
+
+app.use(express.json())
+
 const io = new Server(server, {
   cors: {
-    origin: '*',
-    methods: ['GET', 'POST']
+    origin: '*', // For development; replace with your frontend URL in production
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    credentials: true
   }
 })
-
-// Middleware
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}))
-app.use(express.json())
 
 // Make io accessible to routes
 app.set('io', io)
@@ -53,7 +57,7 @@ const startServer = async () => {
     await connectDb()
     console.log('Successfully connected to database')
     server.listen(PORT, () => {
-      console.log(`Server is running on http://localhost:${PORT}`)
+      console.log(`Server is running`)
     })
   } catch (error) {
     console.error('Failed to connect to database:', error)
